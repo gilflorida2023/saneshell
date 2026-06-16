@@ -44,7 +44,7 @@ version-check:
 	@grep -q "ProtocolVersion = $(PROTOCOL_VERSION)" internal/ipc/protocol.go || \
 		(echo "Protocol mismatch: Go has ProtocolVersion != $(PROTOCOL_VERSION) in internal/ipc/protocol.go"; exit 1)
 	@if [ -f README.md ]; then \
-		grep -q "> **Version:** \`$(VERSION)\`" README.md || \
+		grep -q "Version.*\`$(VERSION)\`" README.md || \
 		echo "  warning: README.md version may be stale (run 'make update-readme')"; \
 	fi
 	@echo "  version:  $(VERSION)"
@@ -99,7 +99,7 @@ test: test-go test-java
 # ── README Version Injection ─────────────────────────────
 update-readme: VERSION
 	@if [ -f README.md ]; then \
-		sed -i 's/> **Version:** `.*`/> **Version:** `$(VERSION)`/' README.md; \
+		sed -i 's/> \*\*Version:\*\* `[0-9.]*`/> **Version:** `$(VERSION)`/' README.md; \
 		echo "  ✓ README.md updated to $(VERSION)"; \
 	else \
 		echo "  warning: README.md not found"; \
