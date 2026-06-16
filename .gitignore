@@ -1,0 +1,32 @@
+# Build artifacts
+dist/
+saneshell
+*.deb
+*.rpm
+
+# Go
+*.exe
+*.test
+*.test.exe
+
+# Java/Gradle
+intel/build/
+intel/.gradle/
+intel/*.iml
+intel/out/
+*.jar
+!intel/gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+.*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config
+*.local.toml
