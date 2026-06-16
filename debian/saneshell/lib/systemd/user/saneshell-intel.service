@@ -1,0 +1,12 @@
+[Unit]
+Description=saneshell intelligence daemon
+Documentation=https://github.com/saneshell/saneshell
+
+[Service]
+Type=simple
+ExecStart=/usr/local/lib/saneshell/saneshell-intel
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

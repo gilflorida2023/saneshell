@@ -1,0 +1,13 @@
+Package: saneshell
+Version: 0.1.0
+Section: shells
+Priority: optional
+Architecture: amd64
+Depends: libc6 (>= 2.31)
+Recommends: saneshell-intel
+Maintainer: Scout <scout@localhost>
+Description: Next-generation shell with proactive completions, inline previews,
+ and post-hoc error detection. Go core with optional Java/GraalVM intelligence daemon.
+ .
+ Features: vi-mode line editor, PTY passthrough for interactive commands,
+ native cd/pushd/popd, IPC over Unix socket, tab completion from PATH+filesystem.
