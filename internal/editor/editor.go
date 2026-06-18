@@ -10,6 +10,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/mattn/go-runewidth"
 	"golang.org/x/term"
 
 	"github.com/saneshell/saneshell/internal/pty"
@@ -36,6 +37,8 @@ type Editor struct {
 	completions []CompletionItem
 	compIdx     int
 	showComp    bool
+	showKind    bool
+	compPrefix  string
 	scanner     *bufio.Scanner
 	viMode      bool  // true = normal mode, false = insert mode
 	viPending   byte  // for multi-key vi commands (e.g. 'd' then 'd')
@@ -74,6 +77,7 @@ func (e *Editor) ReadLine() (string, error) {
 	e.completions = nil
 	e.showComp = false
 	e.compIdx = -1
+	e.compPrefix = ""
 
 	e.render()
 
@@ -304,7 +308,7 @@ func (e *Editor) render() {
 				prefix = "\033[32m> \033[0m"
 			}
 			kind := ""
-			if item.Kind != "" {
+			if e.showKind && item.Kind != "" {
 				kind = " \033[90m[" + item.Kind + "]\033[0m"
 			}
 			desc := ""
@@ -316,8 +320,25 @@ func (e *Editor) render() {
 		}
 	}
 
-	cursorPos := len(prompt) + e.pos
+	cursorPos := visibleWidth(prompt) + runewidth.StringWidth(string(e.line[:e.pos]))
 	fmt.Printf("\033[%dG", cursorPos+1)
+}
+
+// visibleWidth returns the number of visible columns occupied by s,
+// stripping ANSI escape sequences which have zero display width.
+func visibleWidth(s string) int {
+	w := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == '\033' && i+1 < len(s) && s[i+1] == '[' {
+			i += 2
+			for i < len(s) && (s[i] >= 0x20 && s[i] <= 0x2F || s[i] >= 0x30 && s[i] <= 0x3F) {
+				i++
+			}
+			continue
+		}
+		w++
+	}
+	return w
 }
 
 func (e *Editor) moveCursor(delta int) {
@@ -514,6 +535,11 @@ func (e *Editor) doComplete() {
 		e.completions = completeCommand(word)
 	} else {
 		e.completions = completeFile(word)
+		if idx := strings.LastIndex(word, "/"); idx >= 0 {
+			e.compPrefix = word[:idx+1]
+		} else {
+			e.compPrefix = ""
+		}
 	}
 
 	if len(e.completions) == 0 {
@@ -544,6 +570,9 @@ func (e *Editor) applyCompletion(idx int) {
 }
 
 func (e *Editor) applyCompletionText(text string) {
+	fullText := e.compPrefix + text
+	e.compPrefix = ""
+
 	line := string(e.line[:e.pos])
 	wordStart := e.pos
 	if idx := strings.LastIndex(line, " "); idx >= 0 {
@@ -553,8 +582,8 @@ func (e *Editor) applyCompletionText(text string) {
 	}
 	after := make([]byte, len(e.line)-e.pos)
 	copy(after, e.line[e.pos:])
-	e.line = append(append(e.line[:wordStart], []byte(text)...), after...)
-	e.pos = wordStart + len(text)
+	e.line = append(append(e.line[:wordStart], []byte(fullText)...), after...)
+	e.pos = wordStart + len(fullText)
 	e.showComp = false
 	e.completions = nil
 }
@@ -567,6 +596,10 @@ func (e *Editor) SetCompletions(items []CompletionItem) {
 		e.applyCompletion(0)
 	}
 	e.render()
+}
+
+func (e *Editor) SetShowKind(v bool) {
+	e.showKind = v
 }
 
 func (e *Editor) Line() string {

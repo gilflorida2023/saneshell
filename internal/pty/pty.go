@@ -79,6 +79,12 @@ func ExecPTY(shell, cmd string) int {
 	}
 	defer term.Restore(fd, oldState)
 
+	// Set stdin to non-blocking so the reader goroutine can be
+	// interrupted when the command finishes, avoiding the need
+	// for an extra keystroke to unblock wg.Wait().
+	syscall.SetNonblock(fd, true)
+	defer syscall.SetNonblock(fd, false)
+
 	closeOnce := &sync.Once{}
 	ptmxClosed := make(chan struct{})
 
@@ -125,9 +131,29 @@ func ExecPTY(shell, cmd string) int {
 	wg.Add(2)
 
 	go func() {
-		io.Copy(ptmx, os.Stdin)
-		closePTMX()
-		wg.Done()
+		defer wg.Done()
+		buf := make([]byte, 4096)
+		for {
+			select {
+			case <-ptmxClosed:
+				return
+			default:
+			}
+			n, readErr := syscall.Read(fd, buf)
+			if readErr != nil {
+				if readErr == syscall.EAGAIN || readErr == syscall.EWOULDBLOCK {
+					time.Sleep(20 * time.Millisecond)
+					continue
+				}
+				return
+			}
+			if n == 0 {
+				return
+			}
+			if _, writeErr := ptmx.Write(buf[:n]); writeErr != nil {
+				return
+			}
+		}
 	}()
 
 	go func() {

@@ -96,6 +96,21 @@ test-java:
 
 test: test-go test-java
 
+# ── Integration Tests ────────────────────────────────────
+test-integration:
+	$(GO) test -v -count=1 -run 'Test(PTY|CommandOutput|Consecutive|PromptAppears|Exit|Exec)' ./cmd/saneshell/
+
+# ── Golden File Baseline ─────────────────────────────────
+update-baseline:
+	$(GO) test -v -count=1 -run TestBaseline -args -update ./cmd/saneshell/
+
+# ── Full Verification ────────────────────────────────────
+verify: build-go
+	$(GO) test -v -count=1 ./internal/...
+	$(GO) test -v -count=1 -run 'Test(PTY|CommandOutput|Consecutive|PromptAppears|Exit|Exec)' ./cmd/saneshell/
+	@echo ""
+	@echo "  ✓ all checks passed"
+
 # ── README Version Injection ─────────────────────────────
 update-readme: VERSION
 	@if [ -f README.md ]; then \
