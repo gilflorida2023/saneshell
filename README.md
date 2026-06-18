@@ -14,10 +14,13 @@
 
 ```mermaid
 graph TB
-    A[saneshell Go Core] --> B[Line Editor\n(vi keys)]
+    A[saneshell Go Core] --> B[Line Editor
+(vi keys)]
     A --> C[PTY / Job Control]
-    A --> D[IPC Client\nUnix Socket JSONL]
-    D --> E[saneshell-intel\nJava/GraalVM]
+    A --> D[IPC Client
+Unix Socket JSONL]
+    D --> E[saneshell-intel
+Java/GraalVM]
     E --> F[Completions]
     E --> G[Previews]
     E --> H[Learning Engine]
