@@ -12,6 +12,11 @@
 
 ## Architecture
 
+<img alt="Architecture diagram" src="docs/architecture.svg" width="700">
+
+<details>
+<summary>ASCII art (for terminal viewing)</summary>
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        saneshell (Go)                       │
@@ -32,6 +37,7 @@
                                           │  • Ollama LLM    │
                                           └──────────────────┘
 ```
+</details>
 
 ---
 

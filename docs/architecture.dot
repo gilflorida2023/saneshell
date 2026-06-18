@@ -1,0 +1,24 @@
+digraph saneshell {
+    rankdir=TB;
+    splines=ortho;
+    node [shape=box, style=rounded, fontname=monospace, fontsize=11];
+
+    core [label="saneshell Go Core", fillcolor="#e8f0fe", style="filled,rounded"];
+    editor [label="Line Editor\n(vi keys)"];
+    pty [label="PTY / Job Control"];
+    ipc [label="IPC Client\nUnix Socket JSONL"];
+    intel [label="saneshell-intel\nJava/GraalVM"];
+    completions [label="Completions"];
+    previews [label="Previews"];
+    learning [label="Learning Engine"];
+    ollama [label="Ollama LLM"];
+
+    core -> editor;
+    core -> pty;
+    core -> ipc;
+    ipc -> intel;
+    intel -> completions;
+    intel -> previews;
+    intel -> learning;
+    intel -> ollama;
+}
