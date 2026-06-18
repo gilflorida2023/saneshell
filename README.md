@@ -12,24 +12,6 @@
 
 ## Architecture
 
-```mermaid
-graph TB
-    A[saneshell Go Core] --> B[Line Editor
-(vi keys)]
-    A --> C[PTY / Job Control]
-    A --> D[IPC Client
-Unix Socket JSONL]
-    D --> E[saneshell-intel
-Java/GraalVM]
-    E --> F[Completions]
-    E --> G[Previews]
-    E --> H[Learning Engine]
-    E --> I[Ollama LLM]
-```
-
-<details>
-<summary>ASCII fallback (for terminal viewing)</summary>
-
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        saneshell (Go)                       │
@@ -50,7 +32,6 @@ Java/GraalVM]
                                           │  • Ollama LLM    │
                                           └──────────────────┘
 ```
-</details>
 
 ---
 
